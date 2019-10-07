@@ -22,6 +22,7 @@ Ensure your server is set up and running on localhost.
 #### Node.js
 
 Tested on Node 10.
+Note: if you use the option to get the file from S3, you must have ~/.aws/credentials
 
     node upload_file.js
 

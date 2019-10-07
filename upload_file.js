@@ -1,5 +1,28 @@
 const fs = require('fs');
 const http = require('http');
+var AWS = require('aws-sdk');
+
+
+function getFileFromS3(bucketName, keyName, callback) {
+  // Create an S3 client
+  var s3 = new AWS.S3();
+
+  // Get file from bucket
+  var parts = keyName.split('/');
+  var filename = parts[parts.length-1];
+
+  var params = {Bucket: bucketName, Key: keyName};
+  s3.getObject(params, function(err, data) {
+    if (err) {
+      console.log(err);
+    }
+    else {
+      console.log("Successfully downloaded data from " + bucketName + "/" + keyName);
+      fileData = new Buffer(data.Body, 'binary');
+      callback(fileData, filename);
+    }
+  });
+}
 
 
 function encodeMultipartFormData(delimeter, crlf, formData) {
@@ -14,16 +37,18 @@ function encodeMultipartFormData(delimeter, crlf, formData) {
 }
 
 
-function writeBinaryPostData(req, postData, filepath) {
-    const data = fs.readFileSync(filepath);
+function writeBinaryPostData(req, postData, data, filename) {
+
+    const parts = filename.split('.');
+    const fileType = parts[parts.length - 1];
 
     var crlf = "\r\n",
         boundaryKey = Math.random().toString(16),
         boundary = `--${boundaryKey}`,
         delimeter = `${crlf}--${boundary}`,
         headers = [
-          'Content-Disposition: form-data; name="file"; filename="test.pdf"' + crlf,
-          'Content-Type: application/pdf' + crlf,
+          'Content-Disposition: form-data; name="file"; filename="' + filename + '"' + crlf,
+          'Content-Type: application/' + fileType + crlf,
         ],
         closeDelimeter = `${delimeter}--`,
         multipartBody;
@@ -44,10 +69,10 @@ function writeBinaryPostData(req, postData, filepath) {
 }
 
 
-const uploadFile = function(fileBuffer) {
+const uploadFile = function(fileBuffer, filename) {
 
   const postData = {
-    'description': 'This is my pdf file uploaded via Node.js'
+    'description': 'This is my file uploaded via Node.js'
   };
 
   const options = {
@@ -74,11 +99,25 @@ const uploadFile = function(fileBuffer) {
     console.error(`problem with request: ${e.message}`);
   });
 
-  writeBinaryPostData(req, postData, filename);
+  writeBinaryPostData(req, postData, fileBuffer, filename);
 
   req.end();
 };
 
 
-const filename = 'sample.pdf';
-uploadFile(filename);
+function uploadLocalFile() {
+  const filename = 'sample.pdf';
+  const data = fs.readFileSync(filename);
+  uploadFile(data, filename);
+}
+
+function uploadFileFromS3() {
+  var bucketName = 'roxytherenovator';
+  var keyName = 'media/photologue/photos/cache/tmpowlfsd10_display.jpg';
+  console.log('getting file');
+  getFileFromS3(bucketName, keyName, uploadFile);
+}
+
+// Uncomment one of the following:
+uploadLocalFile();
+// uploadFileFromS3();

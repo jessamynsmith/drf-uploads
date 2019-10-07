@@ -1,0 +1,22 @@
+{
+  "name": "drf-uploads",
+  "version": "1.0.0",
+  "description": "1. Install Pipenv (make sure it's running Python 3.7) 2. `pipenv sync` 3. `pipenv shell` 4. `cd drfuploads` 5. `python manage.py makemigrations` 6. `python manage.py migrate` 7. `python manage.py runserver`",
+  "main": "upload_file.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jessamynsmith/drf-uploads.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jessamynsmith/drf-uploads/issues"
+  },
+  "homepage": "https://github.com/jessamynsmith/drf-uploads#readme",
+  "dependencies": {
+    "aws-sdk": "^2.543.0"
+  }
+}
